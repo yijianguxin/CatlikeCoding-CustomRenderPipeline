@@ -1,13 +1,16 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
 public partial class CameraRenderer
 {
+    partial void PrepareBuffer();
     partial void PrepareForSceneWindow();
     partial void DrawGizmos();
     partial void DrawUnsupportedShaders();
 #if UNITY_EDITOR
+    private string SampleName { get; set; }
     private static Material errorMaterial;
     private static ShaderTagId[] ledacyShaderTagId = 
     {
@@ -53,5 +56,14 @@ public partial class CameraRenderer
             ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
         }
     }
+
+    partial void PrepareBuffer()
+    {
+        Profiler.BeginSample("Editor Only");
+        buffer.name = SampleName = camera.name;
+        Profiler.EndSample();
+    }
+#else
+    const string SampleName = bufferName;
 #endif
 }
